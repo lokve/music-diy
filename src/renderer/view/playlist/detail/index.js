@@ -75,7 +75,7 @@ export default {
             })
             this.getSong()
         },
-        replaceSong(item, index) {
+        async replaceSong(item, index, scope) {
             if (this.offline) {
                 const list = JSON.parse(localStorage.getItem(this.getOfflineStoreName())) || []
                 list.splice(index, 1, item)
@@ -83,6 +83,10 @@ export default {
                 this.getSong()
                 return
             }
+            await this.$http.put(`playlist/${this.id}/${scope.row.id}`, {
+                collects: {id: item.id, songId: item.songId, vendor: item.vendor}
+            })
+            this.getSong()
         },
         doPlay(item) {
             let list = []

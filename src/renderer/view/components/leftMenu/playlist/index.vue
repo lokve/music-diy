@@ -1,6 +1,6 @@
 <template>
     <menu-section title="云歌单">
-        <add-icon @click="showAddInput" v-if="info" slot="append"></add-icon>
+        <add-icon @click="showAddInput" slot="append"></add-icon>
         <div v-loading="loading.rename || loading.del || loading.create"
              element-loading-background="rgba(255, 255, 255, 0)"
         >
@@ -41,6 +41,9 @@
         computed: {
             ...mapState('user', ['info']),
             ...mapState('playlist', ['playlist'])
+        },
+        created() {
+            this.$store.dispatch('playlist/init');
         },
         methods: {
             getName() {
@@ -113,9 +116,10 @@
                 try {
                     await this.$store.dispatch('playlist/add', name)
                     this.$store.dispatch('playlist/init')
-                    this.add = false
+        
                 } catch (e) {
                 }
+                this.add = false
                 this.loading.create = false
             }
         }

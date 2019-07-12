@@ -181,24 +181,16 @@
                         this.album.songs = [];
 
                     } else {
-                        const {failedList} = await Vue.$http.post(`/playlist/${this.albumId}/batch2`, {
+                        await Vue.$http.post(`/playlist/${this.albumId}/batch2`, {
                             collects: this.album.songs.map(item => {
                                 return {
                                     id: item.id,
+                                    songId: item.id,
                                     vendor: item.vendor
                                 }
                             })
                         })
-                        this.album.songs = this.album.songs.map(song => {
-                            const cur = failedList.filter(item => song.id === item.id)[0]
-                            if (cur) {
-                                song.status = 0
-                                song.msg = cur.msg
-                            } else {
-                                song.status = 1
-                            }
-                            return song
-                        })
+                        this.$router.push(`/playlist/${this.albumId}`)
                     }
                 } catch (e) {
                     console.warn(e)

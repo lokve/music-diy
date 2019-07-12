@@ -27,7 +27,7 @@
                 <replace-icon slot="songControlPrepend"
                     slot-scope="scope"
                     :info="scope.row"
-                    @replace="replaceSong($event, scope.$index)"
+                    @replace="replaceSong($event, scope.$index, scope)"
                 ></replace-icon>
                 <Icon slot="songControlAppend"
                       slot-scope="scope"

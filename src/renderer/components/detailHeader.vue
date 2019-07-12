@@ -71,7 +71,7 @@
                         opacity: .8;
                     }
                 }
-                & > button {
+                button {
                     height: 24px;
                     padding: 0 16px;
                     font-weight: normal;

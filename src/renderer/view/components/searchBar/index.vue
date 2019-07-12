@@ -20,11 +20,11 @@
             </div>
         </div>
         <div :class="s.right">
-            <Icon type="chat"
+            <!-- <Icon type="chat"
                   :class="{ [s.icon]: true, [s.animation]: hasUnreadMsg }"
                   @click="$router.push('/chat')"
                   v-if="info"
-            ></Icon>
+            ></Icon> -->
             <!--<Icon type="download" :class="s.icon" @click="$router.push('/download')"></Icon>-->
             <Icon type="shezhi" :class="s.icon" @click="$router.push('/setting')"></Icon>
             <view-control v-if="$config.platform !== 'osx'"></view-control>

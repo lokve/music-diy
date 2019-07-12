@@ -65,12 +65,12 @@ export default {
             if (val) {
                 // 初始化
                 Vue.$store.dispatch('playlist/init')
-                Vue.$store.dispatch('socket/initChatHistory')
+                // Vue.$store.dispatch('socket/initChatHistory')
             } else {
                 Vue.$store.commit('playlist/update', [])
-                Vue.$store.commit('socket/update', {
-                    chatHistory: [],
-                })
+                // Vue.$store.commit('socket/update', {
+                //     chatHistory: [],
+                // })
                 Vue.$socket.logout()
                 if (Vue.$router.history.current.name === 'chat') {
                     Vue.$router.push('/')

@@ -8,13 +8,14 @@
         >
             <span @click="logout" v-if="info">退出账号</span>
             <div :class="s.loginMethod" v-else>
-                <div @click="showLoginDialog('qq')">
-                    <Icon type="QQ"></Icon>
-                    <span>QQ登录</span>
+                <div style="margin-bottom: 10px">
+                    <el-input v-model="nickname" size="sm" type="text"></el-input>
                 </div>
-                <div @click="showLoginDialog('weibo')">
-                    <Icon type="weibo"></Icon>
-                    <span>微博登录</span>
+                <div style="margin-bottom: 10px">
+                    <el-input v-model="pass" size="sm" type="password"></el-input>
+                </div>
+                <div>
+                    <el-button @click="login">登录</el-button>
                 </div>
             </div>
         </el-popover>
@@ -32,15 +33,20 @@
                 popover: {
                     logout: false,
                     login: false
-                }
+                },
+                nickname: '',
+                pass: '',
             }
+        },
+        created() {
+            this.$store.dispatch('user/init')
         },
         computed: {
             ...mapState('user', ['info'])
         },
         filters: {
             avatar: (info) => info ? info.avatar : require('@/assets/user.png'),
-            nickname: (info) => info ? info.nickname : '登录'
+            nickname: (info) => info ? info.nickname : 'root'
         },
         methods: {
             showLoginDialog(type) {
@@ -53,6 +59,27 @@
             // 退出
             logout() {
                 this.$store.dispatch('user/logout')
+            },
+            loginSuccessed(info) {
+                console.log(info)
+                // 更新userInfo
+                this.$store.commit('user/update', {
+                    nickname: info.nickname,
+                    avatar: info.avatar,
+                })
+                // 更新token
+                this.$store.commit('token/update', info.token)
+            },
+            async login() {
+                let data = await Vue.$http.post('/user/login', {
+                    nickname: this.nickname,
+                    pass: this.pass,
+                })
+                // console.log(data)
+                if (data.success) {
+                    this.loginSuccessed(data)
+                }
+                // this.$store.dispatch('user/init')
             }
         }
     }
@@ -104,8 +131,8 @@
             }
         }
         .loginMethod {
-            display: flex;
-            justify-content: space-around;
+            // display: flex;
+            // justify-content: space-around;
             & > div {
                 display: flex;
                 flex-direction: column;

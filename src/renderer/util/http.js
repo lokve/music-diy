@@ -26,8 +26,8 @@ instance.interceptors.response.use(
                 Vue.$store.dispatch('user/logout', false)
             } else if (e.response.status === 502) {
                 Vue.$message.warning('服务端可能正在发版本~请稍后重试')
-            } else if (data.msg) {
-                Vue.$message.warning(data.msg)
+            } else if (data.result) {
+                Vue.$message.warning(data.result)
             }
         } else {
             Vue.$message.warning('请检查网络连接')

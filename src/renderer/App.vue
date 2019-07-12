@@ -91,15 +91,15 @@
         created() {
             Vue.$store.dispatch('offline-playlist/init') // 初始化离线歌单
             this.$ipc.on('loginSuccessed', this.loginSuccessed) // 监听登录成功
-            this.$ipc.on('update-alert', this.updateAlert) // 监听版本更新
+            // this.$ipc.on('update-alert', this.updateAlert) // 监听版本更新
             this.$ipc.send('toggle-tray', this.setting.macStatusBar)
             this.$ipc.send('tray-control-volume', this.volume)
             // if (localStorage.token) {
             //     this.$store.dispatch('user/init')
             // }
-            if (!['add-to-playlist', 'share'].includes(this.$route.name)) {
-                Vue.$socket.connect() // 连接 socket
-            }
+            // if (!['add-to-playlist', 'share'].includes(this.$route.name)) {
+            //     Vue.$socket.connect() // 连接 socket
+            // }
             eventBus.$on('refresh', () => {
                 this.refresh = true
                 this.$nextTick(() => {

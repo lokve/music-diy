@@ -9,7 +9,15 @@
             >
                 <p :class="s.desc">歌单-{{id}}<br />{{escapeToHtml(detail.desc)}}</p>
                 <ori-btn slot="btns" :songs="songs"></ori-btn>
-                <el-button slot="btns" @click="createList(detail.name)">收藏歌单</el-button>
+                <el-dropdown slot="btns" @command="handleCommand">
+                    <el-button size="mini" style="margin-left: 10px" type="primary">
+                        收藏歌单<i class="el-icon-arrow-down el-icon--right"></i>
+                    </el-button>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item command="line" v-if="userInfo" @click="createListOnline(detail.name)">在线</el-dropdown-item>
+                        <el-dropdown-item command="offline" @click="createList(detail.name)">离线</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
             </detail-header>
             <DataTable :data="songs"
                        :class="s.table"
@@ -34,6 +42,9 @@
         },
         computed: {
             ...mapState('offline-playlist', ['offline_playlist']),
+            ...mapState('user', {
+                userInfo: 'info'
+            }),
             id() {
                 return this.$route.params.id
             },
@@ -71,6 +82,13 @@
                 temp = null;
                 return output;
             },
+            handleCommand(command) {
+                if (command === 'line') {
+                    this.createListOnline(this.detail.name)
+                } else {
+                    this.createList(this.detail.name)
+                }
+            },
             async createList(name) {
                 if (!name) {
                     return
@@ -83,6 +101,23 @@
                 const {id} = this.offline_playlist.find(item => item.name === name) || {};
                 const plistid = `offline_playlist_${id}_song`;
                 localStorage.setItem(plistid, JSON.stringify(this.songs));
+                this.$message.success('收藏成功');
+            },
+            async createListOnline(name) {
+                if (!name) {
+                    return
+                }
+                const {id} = await this.$store.dispatch('playlist/add', name)
+                await Vue.$http.post(`/playlist/${id}/batch2`, {
+                    collects: this.songs.map(item => {
+                        return {
+                            id: item.id,
+                            songId: item.id,
+                            vendor: item.vendor
+                        }
+                    })
+                })
+                this.$store.dispatch('playlist/init')
                 this.$message.success('收藏成功');
             }
         },
