@@ -74,6 +74,11 @@ export default {
       hot: 'hot'
     };
   },
+  watch: {
+      '$route'() {
+          this.getList()
+      },
+  },
   methods: {
     goPlaylist(id, vendor) {
       this.$router.push({
@@ -87,9 +92,10 @@ export default {
       });
     },
     async getList() {
-      const data = await this.$musicApi.getNeteaseTopPlaylist();
-      console.log(data);
-
+      const {tag, hot} = this.$route.query
+      this.catname = decodeURIComponent(tag);
+      this.hot = decodeURIComponent(hot);
+      const data = await this.$musicApi.getNeteaseTopPlaylist(this.catname, this.hot);
       if (data.status) {
         this.playList = data.data;
       }
@@ -99,13 +105,13 @@ export default {
       // }
     },
     async searchCat(name) {
-      name && (this.catname = name);
-      const data = await this.$musicApi.getNeteaseTopPlaylist(this.catname, this.hot);
-      console.log(data);
-
-      if (data.status) {
-        this.playList = data.data;
-      }
+      this.$router.push({
+        path: '/musicPlaylist/hot',
+        query: {
+          tag: name,
+          hot: this.hot,
+        }
+      })
     },
     escapeToHtml(str) {
       var temp = document.createElement("div");

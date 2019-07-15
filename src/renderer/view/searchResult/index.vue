@@ -151,10 +151,13 @@ export default {
       if (this.isPlayList === "b") {
         this.searchPlaylist();
       }
-    }
+    },
   },
   methods: {
     ...mapActions("play", ["play"]),
+    tabClick() {
+      this.$router.push({path: '/searchResult', query: {tab: this.isPlayList}})
+    },
     async searchPlaylist() {
       if (this.isPlayList && this.lastKey !== this.keywords) {
         const data = await this.$musicApi.searchNeteasePlaylist(this.keywords);
