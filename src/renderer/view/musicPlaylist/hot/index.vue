@@ -93,8 +93,8 @@ export default {
     },
     async getList() {
       const {tag, hot} = this.$route.query
-      this.catname = decodeURIComponent(tag);
-      this.hot = decodeURIComponent(hot);
+      this.catname = tag ? decodeURIComponent(tag) : this.catname;
+      this.hot = hot ? decodeURIComponent(hot) : this.hot;
       const data = await this.$musicApi.getNeteaseTopPlaylist(this.catname, this.hot);
       if (data.status) {
         this.playList = data.data;

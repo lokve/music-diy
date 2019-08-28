@@ -18,14 +18,14 @@
                 <!-- 全屏状态只有离开全屏 !-->
                 <Icon type="fullscreenexit" :class="s.fullscreen" @click.native="op('leaveFullscreen')" v-else></Icon>
             </div>
-            <ul :class="s.main" ref="main" @wheel="scrollBarWheel" v-if="lyrics.length" :style="mainStyle">
-                <li v-for="(item,index) in lyrics" :class="{[s.item]:true,[s.active]:activeIndex === index}">
-                    <span v-html="item[1]"></span>
-                    <template v-if="showTranslate && translate[index] && translate[index][1]">
-                        <br/><span v-html="translate[index][1]"></span>
+            <div :class="s.main" ref="main" @wheel="scrollBarWheel" v-if="lyrics.length" :style="mainStyle">
+                <div v-for="(item,index) in lyrics" :class="{[s.item]:true,[s.active]:activeIndex === index}">
+                    <div style="margin-bottom: 5px" v-html="item[1]"></div>
+                    <template v-if="showTranslate">
+                        <div v-html="translate[item[0]]"></div>
                     </template>
-                </li>
-            </ul>
+                </div>
+            </div>
             <div :class="s.main"
                  :style="mainStyle"
                  v-loading="loading"
@@ -92,10 +92,11 @@
             transition: all .4s;
             -webkit-mask: -webkit-linear-gradient(top, rgba(0, 0, 0, 0), #fff 25%, #fff 75%, rgba(0, 0, 0, 0));
             .item {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                height: 40px;
+                // display: flex;
+                // align-items: center;
+                // justify-content: center;
+                // height: 40px;
+                margin-bottom: 20px;
                 &.active {
                     color: $color-primary;
                 }

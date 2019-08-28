@@ -5,7 +5,10 @@
                     trigger="click"
                     v-model="show"
         >
-            <p :class="s.title">单击行将直接更换</p>
+            <p :class="s.title" style="margin-bottom: 10px">单击行将直接更换</p>
+            <el-input style="margin-bottom: 10px" size="mini" v-model="info.name">
+                <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+            </el-input>
             <DataTable :data="result"
                        :loading="loading"
                        :showOperate="false"

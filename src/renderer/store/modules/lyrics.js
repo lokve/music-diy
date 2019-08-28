@@ -5,7 +5,7 @@ export default {
     state: {
         show: false,
         lyrics: [],
-        translate: [],
+        translate: {},
         loading: false,
         activeIndex: 0,
         showTranslate: false,
@@ -27,7 +27,19 @@ export default {
             const startsArr = new Array(6).fill(null).map(item => ['0:0.0', ' '])
             const endsArr = new Array(6).fill(null).map(item => ['99:99.0', ' '])
             const lyrics = data.status ? data.data.lyric : []
-            const translate = data.status ? data.data.translate : []
+            const translate = {};
+            if (data.status) {
+                translate.has = true;
+                data.data.translate.forEach(ly => {
+                    const arr = ly[0].match(/^(\d+):(\d+).(\d+)$/)
+                    const key = parseInt(arr[1]) * 60 * 1000 + parseInt(arr[2]) * 1000 + parseInt(arr[3].padEnd(3, '0'))
+                    if (!translate[key]) {
+                        translate[key] = ly[1]
+                    } else {
+                        translate[key] += ' ' + ly[1]
+                    }
+                })
+            }
             commit('update', {
                 lyrics: (lyrics.length ? startsArr.concat(lyrics).concat(endsArr) : []).map(item => {
                     const lyric = [...item] // 避免污染startsArr,endsArr中的值
@@ -37,13 +49,14 @@ export default {
                     }
                     return lyric
                 }),
-                translate: (translate.length ? startsArr.concat(translate).concat(endsArr) : []).map(item => {
-                    let arr = item[0].match(/^(\d+):(\d+).(\d+)$/)
-                    if (arr) {
-                        item[0] = parseInt(arr[1]) * 60 * 1000 + parseInt(arr[2]) * 1000 + parseInt(arr[3].padEnd(3, '0'))
-                    }
-                    return item
-                }),
+                // translate: (translate.length ? startsArr.concat(translate).concat(endsArr) : []).map(item => {
+                //     let arr = item[0].match(/^(\d+):(\d+).(\d+)$/)
+                //     if (arr) {
+                //         item[0] = parseInt(arr[1]) * 60 * 1000 + parseInt(arr[2]) * 1000 + parseInt(arr[3].padEnd(3, '0'))
+                //     }
+                //     return item
+                // }),
+                translate,
                 loading: false,
                 activeIndex: 0,
             })
@@ -51,7 +64,7 @@ export default {
     },
     getters: {
         hasTranslation(state) {
-            return Boolean(state.translate.length)
+            return Boolean(state.translate.has)
         },
     },
 }
