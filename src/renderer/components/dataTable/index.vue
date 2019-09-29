@@ -46,7 +46,7 @@
                 type="download"
                 v-if="canDownload"
                 clickable
-                :disabled="item.cp || !item.dl"
+                :disabled="item.cp"
                 @click="download(item)"
               ></Icon>
               <slot name="songControlAppend" :row="item" :$index="index"></slot>

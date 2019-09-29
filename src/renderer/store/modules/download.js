@@ -61,7 +61,7 @@ export default {
             })
         },
         async download({commit, getters}, song) {
-            if (song.cp || !song.dl) {
+            if (song.cp) {
                 Vue.$message.warning('歌曲无法免费下载')
                 return
             }
