@@ -52,6 +52,7 @@ export default {
             this.loading = true;
             try {
                 this.list = await this.$http.get(`playlist/${id}`);
+                console.log(this.list);
                 // this.updateSongsInfo()
             } catch (e) {
                 console.warn(e);

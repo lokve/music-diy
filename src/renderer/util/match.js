@@ -14,11 +14,16 @@ const provider = {
 };
 
 export const match = (info, source) => {
+    if (!info.keyword) {
+        info = {
+            ...info,
+            keyword: info.name + ' - ' + info.artists.map(artist => artist.name).join(' / '),
+        };
+    }
     let meta = {};
     let candidate = (source || global.source || ['qq', 'kuwo', 'migu']).filter(
         name => name in provider,
     );
-    meta = info;
     return Promise.all(candidate.map(name => provider[name].check(info).catch(() => {})))
         .then(urls => {
             urls = urls.filter(url => url);
@@ -27,7 +32,7 @@ export const match = (info, source) => {
         .then(songs => {
             songs = songs.filter(song => song.url);
             if (!songs.length) return Promise.reject();
-            console.log(`[${meta.id}] ${meta.name}\n${songs[0].url}`);
+            console.log(`[${info.id}] ${info.keyword}\n${songs[0].url}`);
             return songs[0];
         });
 };
