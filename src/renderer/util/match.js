@@ -1,49 +1,50 @@
-const find = require('@nondanee/unblockneteasemusic/provider/find');
-const request = require('@nondanee/unblockneteasemusic/request');
+const find = require('@nondanee/unblockneteasemusic/src/provider/find');
+const request = require('@nondanee/unblockneteasemusic/src/request');
 
 const provider = {
-    netease: require('@nondanee/unblockneteasemusic/provider/netease'),
-    qq: require('@nondanee/unblockneteasemusic/provider/qq'),
-    xiami: require('@nondanee/unblockneteasemusic/provider/xiami'),
-    baidu: require('@nondanee/unblockneteasemusic/provider/baidu'),
-    kugou: require('@nondanee/unblockneteasemusic/provider/kugou'),
-    kuwo: require('@nondanee/unblockneteasemusic/provider/kuwo'),
-    migu: require('@nondanee/unblockneteasemusic/provider/migu'),
-    joox: require('@nondanee/unblockneteasemusic/provider/joox'),
-    youtube: require('@nondanee/unblockneteasemusic/provider/youtube'),
+    netease: require('@nondanee/unblockneteasemusic/src/provider/netease'),
+    qq: require('@nondanee/unblockneteasemusic/src/provider/qq'),
+    xiami: require('@nondanee/unblockneteasemusic/src/provider/xiami'),
+    baidu: require('@nondanee/unblockneteasemusic/src/provider/baidu'),
+    kugou: require('@nondanee/unblockneteasemusic/src/provider/kugou'),
+    kuwo: require('@nondanee/unblockneteasemusic/src/provider/kuwo'),
+    migu: require('@nondanee/unblockneteasemusic/src/provider/migu'),
+    joox: require('@nondanee/unblockneteasemusic/src/provider/joox'),
+    youtube: require('@nondanee/unblockneteasemusic/src/provider/youtube'),
 };
 
 export const match = (info, source) => {
     if (!info.keyword) {
         info = {
             ...info,
-            keyword: info.name + ' - ' + info.artists.map(artist => artist.name).join(' / '),
+            keyword: info.name + ' - ' + info.artists.map((artist) => artist.name).join(' / '),
         };
     }
+    console.log(info);
     let meta = {};
     let candidate = (source || global.source || ['qq', 'kuwo', 'migu']).filter(
-        name => name in provider,
+        (name) => name in provider,
     );
-    return Promise.all(candidate.map(name => provider[name].check(info).catch(() => {})))
-        .then(urls => {
-            urls = urls.filter(url => url);
-            return Promise.all(urls.map(url => check(url)));
+    return Promise.all(candidate.map((name) => provider[name].check(info).catch(() => {})))
+        .then((urls) => {
+            urls = urls.filter((url) => url);
+            return Promise.all(urls.map((url) => check(url)));
         })
-        .then(songs => {
-            songs = songs.filter(song => song.url);
+        .then((songs) => {
+            songs = songs.filter((song) => song.url);
             if (!songs.length) return Promise.reject();
             console.log(`[${info.id}] ${info.keyword}\n${songs[0].url}`);
             return songs[0];
         });
 };
 
-const check = url => {
+const check = (url) => {
     let song = {size: 0, br: null, url: null, md5: null};
     return Promise.race([
         request('GET', url, {range: 'bytes=0-8191'}),
         new Promise((_, reject) => setTimeout(() => reject(504), 5 * 1000)),
     ])
-        .then(response => {
+        .then((response) => {
             if (!response.statusCode.toString().startsWith('2')) return Promise.reject();
             if (url.includes('qq.com')) song.md5 = response.headers['server-md5'];
             else if (url.includes('xiami.net') || url.includes('qianqian.com'))
@@ -58,7 +59,7 @@ const check = url => {
                 ? response.body(true)
                 : Promise.reject();
         })
-        .then(data => {
+        .then((data) => {
             let bitrate = decode(data);
             song.br = bitrate && !isNaN(bitrate) ? bitrate * 1000 : null;
         })
@@ -66,7 +67,7 @@ const check = url => {
         .then(() => song);
 };
 
-const decode = buffer => {
+const decode = (buffer) => {
     const map = {
         3: {
             3: ['free', 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 'bad'],

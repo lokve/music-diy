@@ -23,8 +23,8 @@
             </el-row>
             <el-row
                 v-for="(item,index) in filterList"
-                :class="{ [s.row] : true, [s.disabled] : item.cp }"
-                :key="item.songId"
+                :class="{ [s.row] : true }"
+                :key="item.id"
                 @click.native="$emit('rowClick', item)"
                 @contextmenu.native="showContextMenu(item)"
                 @dblclick.native="doPlay(item)"
@@ -39,19 +39,22 @@
                                 :class="s.quality"
                             ></quality>
                         </div>
+                        <div :class="s.songControl" v-if="showListen">
+                            <Icon type="item-play" @click.stop="doPlay(item)" clickable></Icon>
+                        </div>
                         <div :class="s.songControl" v-if="showOperate">
                             <slot
                                 name="songControlPrepend"
                                 :row="item"
                                 :$index="limit * (page - 1) + index"
                             ></slot>
-                            <Icon type="item-play" @click="doPlay(item)" v-if="!item.cp" clickable></Icon>
+                            <Icon type="item-play" @click="doPlay(item)" clickable></Icon>
                             <Icon type="like" disabled v-if="showLike"></Icon>
                             <Icon
                                 type="download"
                                 v-if="canDownload"
                                 clickable
-                                :disabled="item.cp"
+                                :disabled="false"
                                 @click="download(item)"
                             ></Icon>
                             <slot name="songControlAppend" :row="item" :$index="index"></slot>
@@ -82,7 +85,10 @@
                     >{{item.album.name}}</router-link>
                     <template v-else>{{item.album.name}}</template>
                 </el-col>
-                <el-col :span="spanList[3]" v-if="showVendor">{{item.vendor | source}}</el-col>
+                <el-col
+                    :span="spanList[3]"
+                    v-if="showVendor"
+                >{{(item.newVendor || item.vendor) | source}}</el-col>
                 <el-col :span="spanList[4]" v-if="spanList[4]">
                     <slot name="append" :row="item"></slot>
                 </el-col>
@@ -122,6 +128,10 @@ export default {
         showOperate: {
             type: Boolean,
             default: true
+        },
+        showListen: {
+            type: Boolean,
+            default: false
         },
         spanWidth: Array,
         slotAppendTitle: String,

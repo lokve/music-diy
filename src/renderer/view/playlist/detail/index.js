@@ -22,7 +22,7 @@ export default {
         info() {
             return (
                 (this.offline ? this.offline_playlist : this.playlist).filter(
-                    item => item.id === this.id,
+                    (item) => item.id === this.id,
                 )[0] || {}
             );
         },
@@ -78,7 +78,9 @@ export default {
                     id: item.id,
                 },
             });
-            this.getSong();
+            this.list = this.list.filter(
+                (l) => !(l.songId === item.songId && l.vendor === item.vendor),
+            );
         },
         async replaceSong(item, index, scope) {
             if (this.offline) {
@@ -88,14 +90,17 @@ export default {
                 this.getSong();
                 return;
             }
-            await this.$http.put(`playlist/${this.id}/${scope.row.id}`, {
-                collects: {id: item.id, songId: item.songId, vendor: item.vendor},
+            const rst = await this.$http.put(`playlist/${this.id}/${scope.row.id}`, {
+                collects: item,
             });
-            this.getSong();
+            if (rst.success) {
+                this.$message('操作成功');
+                this.list.splice(index, 1, item);
+            }
         },
         doPlay(item) {
             let list = [];
-            this.list.forEach(item => {
+            this.list.forEach((item) => {
                 list.push(item);
             });
             this.play({
@@ -113,7 +118,7 @@ export default {
         // 更新歌曲信息
         async updateSongsInfo() {
             const data = await this.$musicApi.getAnyVendorSongDetail(
-                this.list.map(item => {
+                this.list.map((item) => {
                     return {
                         id: item.songId,
                         vendor: item.vendor,

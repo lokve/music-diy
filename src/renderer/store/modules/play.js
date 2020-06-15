@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import {remote} from 'electron';
-// const match = require('@nondanee/unblockneteasemusic');
 const fs = remote.require('fs');
+import newApi from '../../util/newApi';
+
 export default {
     namespaced: true,
     state: {
@@ -71,22 +72,6 @@ export default {
                     info,
                     pause: true,
                 });
-                // console.log(info)
-                // 首先检查ip
-                try {
-                    const {data} = await Vue.$clientApi('http://txt.go.sohu.com/ip/soip');
-                    const match = data.match(/sohu_IP_Loc_V="(.*?)"/);
-                    if (match && match[1].substr(0, 2) !== 'CN') {
-                        console.log(match);
-                        Vue.$message({
-                            message: '当前ip来自海外,请检查是否使用了vpn,部分音乐可能无法播放',
-                            duration: 5000,
-                            type: 'warning',
-                        });
-                    }
-                } catch (e) {
-                    console.warn(e);
-                }
                 let quality = 128000;
                 const priority = Vue.$store.state.user.setting.quality / 1000;
                 if (priority > 128 && info.quality) {
@@ -103,8 +88,11 @@ export default {
                         }
                     }
                 }
-                // let data = await Vue.$musicApi.getSongUrl(info.vendor, info.songId, quality);
-                let data = await Vue.$musicApi.match(info, ['qq', 'kuwo', 'migu']);
+                const fn = info.newVendor
+                    ? () => newApi[info.newVendor].getSong(info.param)
+                    : () => Vue.$musicApi.match(info, ['qq', 'kuwo', 'migu']);
+                const data = await fn();
+                console.log(data);
                 if (data) {
                     Vue.$store.dispatch('lyrics/init');
                     let url = data.url;
@@ -123,7 +111,7 @@ export default {
             }
         },
         playAll({dispatch}, list) {
-            const songs = list.filter(item => !item.cp);
+            const songs = list.filter((item) => !item.cp);
             if (!songs.length) {
                 Vue.$message.warning('暂无可试听歌曲');
                 return;

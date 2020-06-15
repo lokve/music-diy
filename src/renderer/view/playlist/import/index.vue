@@ -1,15 +1,20 @@
 <template>
     <div :class="s.import">
         <el-breadcrumb style="margin-top: 8px;">
-            <el-breadcrumb-item :to="{name: 'playlist', params: {id: albumId}}">{{
+            <el-breadcrumb-item :to="{name: 'playlist', params: {id: albumId}}">
+                {{
                 name
-            }}</el-breadcrumb-item>
+                }}
+            </el-breadcrumb-item>
             <el-breadcrumb-item>导入歌曲</el-breadcrumb-item>
         </el-breadcrumb>
         <div :class="s.main">
-            <el-radio v-for="(item, key) in vendors" :key="key" v-model="vendor" :label="key">
-                {{ item.text }}
-            </el-radio>
+            <el-radio
+                v-for="(item, key) in vendors"
+                :key="key"
+                v-model="vendor"
+                :label="key"
+            >{{ item.text }}</el-radio>
             <el-input
                 placeholder="请输入歌单ID"
                 v-model="id"
@@ -18,23 +23,18 @@
                 clearable
             >
                 <template slot="prepend">
-                    <template v-if="vendor === 'netease'">
-                        http://music.163.com/#/my/m/music/playlist?id=
-                    </template>
-                    <template v-else-if="vendor === 'qq'">
-                        https://y.qq.com/n/yqq/playlist/
-                    </template>
-                    <template v-else="vendor === 'xiami'">
-                        https://www.xiami.com/collect/
-                    </template>
+                    <template
+                        v-if="vendor === 'netease'"
+                    >http://music.163.com/#/my/m/music/playlist?id=</template>
+                    <template v-else-if="vendor === 'qq'">https://y.qq.com/n/yqq/playlist/</template>
+                    <template v-else="vendor === 'xiami'">https://www.xiami.com/collect/</template>
                 </template>
-                <template slot="append" v-if="vendor === 'qq'">
-                    .html
-                </template>
+                <template slot="append" v-if="vendor === 'qq'">.html</template>
             </el-input>
             <p :class="s.help">
-                登录网页版<a @click="openExternal(false)">{{ chosen.text }}</a
-                >后，<a @click="openExternal">点此进入歌单</a>，从url中找到歌单ID
+                登录网页版
+                <a @click="openExternal(false)">{{ chosen.text }}</a>后，
+                <a @click="openExternal">点此进入歌单</a>，从url中找到歌单ID
             </p>
             <el-button
                 style="margin-top: 32px"
@@ -43,8 +43,7 @@
                 :disabled="!id"
                 @click="getAlbumSongs"
                 :loading="loading.getAlbumSongs"
-                >识别歌单
-            </el-button>
+            >识别歌单</el-button>
             <template v-if="album">
                 <el-button
                     style="margin-top: 32px"
@@ -52,53 +51,53 @@
                     type="primary"
                     @click="importSongs"
                     :loading="loading.importSongs"
-                    >立即导入
-                </el-button>
+                >立即导入</el-button>
                 <v-table :album="album" style="margin-top: 24px;"></v-table>
             </template>
         </div>
     </div>
 </template>
 <script>
-import {shell} from 'electron';
-import vTable from './table.vue';
-import {mapState} from 'vuex';
+import { shell } from "electron";
+import vTable from "./table.vue";
+import { mapState } from "vuex";
 
 export default {
     components: {
-        vTable,
+        vTable
     },
     data() {
         return {
-            vendor: 'netease',
-            id: '',
+            vendor: "netease",
+            id: "",
             album: null,
             loading: {
                 getAlbumSongs: false,
-                importSongs: false,
+                importSongs: false
             },
             vendors: {
                 netease: {
-                    text: '网易云音乐',
-                    home: 'http://music.163.com/',
-                    album: 'http://music.163.com/#/my/',
+                    text: "网易云音乐",
+                    home: "http://music.163.com/",
+                    album: "http://music.163.com/#/my/"
                 },
                 qq: {
-                    text: 'QQ音乐',
-                    home: 'https://y.qq.com/',
-                    album: 'https://y.qq.com/portal/profile.html#sub=other&tab=create&',
+                    text: "QQ音乐",
+                    home: "https://y.qq.com/",
+                    album:
+                        "https://y.qq.com/portal/profile.html#sub=other&tab=create&"
                 },
                 xiami: {
-                    text: '虾米音乐',
-                    home: 'https://www.xiami.com/',
-                    album: 'https://www.xiami.com/space/collect',
-                },
-            },
+                    text: "虾米音乐",
+                    home: "https://www.xiami.com/",
+                    album: "https://www.xiami.com/space/collect"
+                }
+            }
         };
     },
     computed: {
-        ...mapState('playlist', ['playlist']),
-        ...mapState('offline-playlist', ['offline_playlist']),
+        ...mapState("playlist", ["playlist"]),
+        ...mapState("offline-playlist", ["offline_playlist"]),
         albumId() {
             const id = this.$route.params.id;
             return isNaN(Number(id)) ? id : Number(id);
@@ -110,16 +109,17 @@ export default {
             return this.$route.query.offline;
         },
         name() {
-            const arr = (this.offline ? this.offline_playlist : this.playlist).filter(
-                item => item.id === this.albumId,
-            );
-            return arr.length ? arr[0].name : '';
-        },
+            const arr = (this.offline
+                ? this.offline_playlist
+                : this.playlist
+            ).filter(item => item.id === this.albumId);
+            return arr.length ? arr[0].name : "";
+        }
     },
     watch: {
         vendor() {
             this.album = null;
-        },
+        }
     },
     methods: {
         openExternal(isAlbum = true) {
@@ -132,17 +132,23 @@ export default {
         async getAlbumSongs() {
             this.loading.getAlbumSongs = true;
             try {
-                const data = await Vue.$musicApi.getPlaylistDetail(this.vendor, this.id);
+                const data =
+                    this.vendor === "netease"
+                        ? await Vue.$musicApi.getNeteasePlaylistDetail(this.id)
+                        : await Vue.$musicApi.getPlaylistDetail(
+                              this.vendor,
+                              this.id
+                          );
                 if (data.status) {
                     this.album = {};
-                    Vue.set(this.album, 'detail', data.data.detail);
-                    Vue.set(this.album, 'songs', data.data.songs);
+                    Vue.set(this.album, "detail", data.data.detail);
+                    Vue.set(this.album, "songs", data.data.songs);
                     this.album.songs = this.album.songs.map(item => {
                         return {
                             ...item,
                             songId: item.id,
                             vendor: this.vendor,
-                            status: -1,
+                            status: -1
                         };
                     });
                     // this.$message.success('歌单识别成功，正在自动换源');
@@ -168,7 +174,7 @@ export default {
                     // }
                     // this.$message.success('换源结束');
                 } else {
-                    this.$message.warning('无法识别歌单');
+                    this.$message.warning("无法识别歌单");
                 }
             } catch (e) {
                 console.warn(e);
@@ -184,9 +190,9 @@ export default {
                     // TODO
                     localStorage.setItem(
                         this.getOfflineStoreName(),
-                        JSON.stringify(this.album.songs),
+                        JSON.stringify(this.album.songs)
                     );
-                    this.$message.success('导入成功');
+                    this.$message.success("导入成功");
                     this.album.songs = [];
                 } else {
                     await Vue.$http.post(`/playlist/${this.albumId}/batch2`, {
@@ -194,16 +200,18 @@ export default {
                             return {
                                 ...item,
                                 songId: item.id,
-                                name: (item.name || '')
-                                    .replace(/（\s*cover[:：\s][^）]+）/i, '')
-                                    .replace(/\(\s*cover[:：\s][^\)]+\)/i, ''),
+                                name: (item.name || "")
+                                    .replace(/（\s*cover[:：\s][^）]+）/i, "")
+                                    .replace(/\(\s*cover[:：\s][^\)]+\)/i, ""),
                                 keyword:
                                     item.name +
-                                    ' - ' +
-                                    item.artists.map(artist => artist.name).join(' / '),
-                                cp: false,
+                                    " - " +
+                                    item.artists
+                                        .map(artist => artist.name)
+                                        .join(" / "),
+                                cp: false
                             };
-                        }),
+                        })
                     });
                     this.$router.push(`/playlist/${this.albumId}`);
                 }
@@ -212,8 +220,8 @@ export default {
                 e.msg && this.$message.warning(e.msg);
             }
             this.loading.importSongs = false;
-        },
-    },
+        }
+    }
 };
 </script>
 <style lang="scss" module="s">
